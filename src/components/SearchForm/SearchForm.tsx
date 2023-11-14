@@ -15,6 +15,9 @@ import {
 import { FlightTable } from '../FlightTable/FlightTable';
 import type { SimpleAirport, Direction } from '../../interfaces/interfaces';
 import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
+import FlightLandIcon from '@mui/icons-material/FlightLand';
+import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
+import './SearchForm.css';
 
 export const SearchForm = () => {
 	const [selectedCountryName, setSelectedCountryName] = useState<string | null>(
@@ -96,18 +99,24 @@ export const SearchForm = () => {
 							flexDirection: 'row',
 							justifyContent: 'space-evenly',
 						}}>
-						<FormControlLabel
-							value='departure'
-							control={<Radio />}
-							label='Wyloty'
-							onChange={handleDirectionChange}
-						/>
-						<FormControlLabel
-							value='arrival'
-							control={<Radio />}
-							label='Przyloty'
-							onChange={handleDirectionChange}
-						/>
+						<Box className='direction-box'>
+							<FlightTakeoffIcon />
+							<FormControlLabel
+								value='departure'
+								control={<Radio />}
+								label='Wyloty'
+								onChange={handleDirectionChange}
+							/>
+						</Box>
+						<Box className='direction-box'>
+							<FlightLandIcon />
+							<FormControlLabel
+								value='arrival'
+								control={<Radio />}
+								label='Przyloty'
+								onChange={handleDirectionChange}
+							/>
+						</Box>
 					</RadioGroup>
 				</FormControl>
 			)}

@@ -39,7 +39,7 @@ export const DepartureTable: React.FC<DepartureTableProps> = ({ flights }) => {
 				</Box>
 			)}
 			<Table>
-				<TableHead>
+				<TableHead className='table-head'>
 					<TableRow>
 						<TableCell>Flight Number</TableCell>
 						<TableCell>To</TableCell>
@@ -48,9 +48,9 @@ export const DepartureTable: React.FC<DepartureTableProps> = ({ flights }) => {
 						<TableCell>Airline</TableCell>
 					</TableRow>
 				</TableHead>
-				<TableBody>
+				<TableBody className='table-body'>
 					{flights?.map(flight => (
-						<TableRow
+						<TableRow className='table-row'
 							key={flight.departure.scheduled + flight.flight.iata}
 							sx={{
 								'&:last-child td, &:last-child th': { border: 0 },

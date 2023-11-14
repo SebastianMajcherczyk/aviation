@@ -23,6 +23,8 @@ interface FlightDetailsProps {
 	setSelectedFlightIndex: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
+
+
 export const FlightDetails: React.FC<FlightDetailsProps> = ({
 	flight,
 
