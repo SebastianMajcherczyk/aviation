@@ -10,6 +10,7 @@ import {
 import React, { useState } from 'react';
 import { FlightDetails } from '../FlightDetails/FlightDetails';
 import { Flight } from '../../interfaces/interfaces';
+import { ArrivalTableRow } from './ArrivalTableRow';
 
 interface ArrivalTableProps {
 	flights: Flight[] | null;
@@ -17,10 +18,12 @@ interface ArrivalTableProps {
 
 export const ArrivalTable: React.FC<ArrivalTableProps> = ({ flights }) => {
 	const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null);
-	const [selectedFlightIndex, setSelectedFlightIndex] = useState<number | null>(null);
+	const [selectedFlightIndex, setSelectedFlightIndex] = useState<number | null>(
+		null
+	);
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-	const handleClickFlight = (flight: Flight, index: number) => () => {
+	const handleClickFlight = (index: number) => (flight: Flight) => () => {
 		setSelectedFlight(flight);
 		setSelectedFlightIndex(index);
 		setIsModalOpen(true);
@@ -29,15 +32,17 @@ export const ArrivalTable: React.FC<ArrivalTableProps> = ({ flights }) => {
 		<div>
 			{selectedFlight && isModalOpen && (
 				<Box>
-					<FlightDetails flight={selectedFlight} setIsModalOpen={setIsModalOpen}
-					flights={flights}
-					selectedFlightIndex={selectedFlightIndex}
-					setSelectedFlightIndex={setSelectedFlightIndex}
-					
+					<FlightDetails
+						flight={selectedFlight}
+						setIsModalOpen={setIsModalOpen}
+						flights={flights}
+						selectedFlightIndex={selectedFlightIndex}
+						setSelectedFlightIndex={setSelectedFlightIndex}
+						setSelectedFlight={setSelectedFlight}
 					/>
 				</Box>
 			)}
-			<Table>
+			<Table stickyHeader>
 				<TableHead className='table-head'>
 					<TableRow>
 						<TableCell>Flight Number</TableCell>
@@ -49,21 +54,11 @@ export const ArrivalTable: React.FC<ArrivalTableProps> = ({ flights }) => {
 				</TableHead>
 				<TableBody className='table-body'>
 					{flights?.map((flight, index) => (
-						<TableRow className='table-row'
-							key={flight.flight_date + flight.flight.number}
-							sx={{
-								'&:last-child td, &:last-child th': { border: 0 },
-								cursor: 'pointer',
-							}}
-							onClick={handleClickFlight(flight, index)}>
-							<TableCell>{flight.flight.iata}</TableCell>
-							<TableCell>{flight.departure.airport}</TableCell>
-							<TableCell>
-								{new Date(flight.arrival.scheduled).toLocaleString('pl-PL')}
-							</TableCell>
-							<TableCell>{flight.flight_status}</TableCell>
-							<TableCell>{flight.airline.name}</TableCell>
-						</TableRow>
+						<ArrivalTableRow
+							key={flight.arrival.scheduled + flight.flight.iata}
+							flight={flight}
+							handleClickFlight={handleClickFlight(index)}
+						/>
 					))}
 				</TableBody>
 			</Table>

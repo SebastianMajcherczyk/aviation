@@ -4,7 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { dataService } from '../../services';
 import { ArrivalTable } from '../ArrivalTable/ArrivalTable';
 import { DepartureTable } from '../DepartureTable/DepartureTable';
-import { SimpleAirport, Direction, Flight } from '../../interfaces/interfaces';
+import { SimpleAirport, Direction} from '../../interfaces/interfaces';
+
+
+import { useAppDispatch, useAppSelector } from '../../store/store';
+import { setFlights } from '../../store/apiFlightsSlice';
+
 
 interface FlightTableProps {
 	selectedAirport: SimpleAirport;
@@ -17,9 +22,13 @@ export const FlightTable: React.FC<FlightTableProps> = ({
 	direction,
 	offset,
 }) => {
-	const [flights, setFlights] = useState<Flight[] | null>(null);
+	// const [flights, setFlights] = useState<Flight[] | null>(null);
 	const [tableActive, setTableActive] = useState(false);
 	const [loaderActive, setLoaderActive] = useState(false);
+	const dispatch = useAppDispatch();
+	const flightsFromStore = useAppSelector(
+		(state: any) => state.apiFlights.flights
+	);
 
 	useEffect(() => {
 		const iata_code = selectedAirport?.iata_code;
@@ -28,18 +37,21 @@ export const FlightTable: React.FC<FlightTableProps> = ({
 
 		const fetchFlights = async () => {
 			const data = await dataService.getFlights(iata_code, direction, offset);
-			setFlights(data.data);
+			// setFlights(data.data);
+			dispatch(setFlights(data.data));
 			setTableActive(true);
 			setLoaderActive(false);
 		};
 		fetchFlights();
-	}, [selectedAirport, direction, offset]);
+	}, [selectedAirport, direction, offset, dispatch]);
 
 	return (
 		<Box
 			sx={{
 				position: 'relative',
 				minHeight: '100vh',
+				width: '98%',
+				margin: '0 auto',
 			}}>
 			{loaderActive && (
 				<CircularProgress
@@ -54,10 +66,10 @@ export const FlightTable: React.FC<FlightTableProps> = ({
 				/>
 			)}
 			{direction === 'arrival' && tableActive && (
-				<ArrivalTable flights={flights} />
+				<ArrivalTable flights={flightsFromStore} />
 			)}
 			{direction === 'departure' && tableActive && (
-				<DepartureTable flights={flights} />
+				<DepartureTable flights={flightsFromStore} />
 			)}
 		</Box>
 	);

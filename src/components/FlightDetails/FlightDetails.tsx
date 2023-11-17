@@ -19,17 +19,16 @@ interface FlightDetailsProps {
 	flight: Flight;
 	setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 	flights: Flight[] | null;
+	setSelectedFlight: React.Dispatch<React.SetStateAction<Flight | null>>;
 	selectedFlightIndex: number | null;
 	setSelectedFlightIndex: React.Dispatch<React.SetStateAction<number | null>>;
 }
 
-
-
 export const FlightDetails: React.FC<FlightDetailsProps> = ({
 	flight,
-
 	setIsModalOpen,
 	flights,
+	setSelectedFlight,
 	selectedFlightIndex,
 	setSelectedFlightIndex,
 }) => {
@@ -62,6 +61,7 @@ export const FlightDetails: React.FC<FlightDetailsProps> = ({
 					? 0
 					: selectedFlightIndex + 1;
 		}
+		setSelectedFlight(flights[newIndex]);
 		setSelectedFlightIndex(newIndex);
 	};
 

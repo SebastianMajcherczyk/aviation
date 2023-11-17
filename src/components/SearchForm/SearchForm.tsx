@@ -4,20 +4,14 @@ import { countriesEN } from '../../data/countries-en';
 import { airports } from '../../data/airports';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import {
-	Box,
-	Button,
-	FormControl,
-	FormControlLabel,
-	Radio,
-	RadioGroup,
-} from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { FlightTable } from '../FlightTable/FlightTable';
 import type { SimpleAirport, Direction } from '../../interfaces/interfaces';
 import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
 import FlightLandIcon from '@mui/icons-material/FlightLand';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import './SearchForm.css';
+
 
 export const SearchForm = () => {
 	const [selectedCountryName, setSelectedCountryName] = useState<string | null>(
@@ -38,38 +32,38 @@ export const SearchForm = () => {
 		return [];
 	}, [selectedCountryName]);
 
-	const handleDirectionChange = (
-		event: React.SyntheticEvent<Element, Event>
-	) => {
-		setDirection((event.target as HTMLInputElement).value as Direction);
-	};
+
 
 	return (
 		<div>
-			<Autocomplete
-				disablePortal
-				id='combo-box-countries'
-				options={countriesEN}
-				sx={{ width: '98%', margin: '10px auto' }}
-				getOptionLabel={option => option.name || ''}
-				renderInput={params => <TextField {...params} label='Wybierz kraj' />}
-				onChange={(event, value) => {
-					if (value) {
-						setSelectedCountryName(value?.name);
-					} else {
-						setSelectedCountryName(null);
-					}
-				}}
-			/>
+			<div className='selection-container'>
+				<Autocomplete
+					className='selection-item'
+					disablePortal
+					id='combo-box-countries'
+					options={countriesEN}
+					getOptionLabel={option => option.name || ''}
+					renderInput={params => <TextField {...params} label='Wybierz kraj' />}
+					onChange={(event, value) => {
+						if (value) {
+							setSelectedCountryName(value?.name);
+							setSelectedAirport(null);
+						} else {
+							setSelectedCountryName(null);
+						}
+					}}
+				/>
 
-			{airportsListByCountry?.length > 0 && (
-				<div>
+				{airportsListByCountry?.length > 0 && (
 					<Autocomplete
+						className='selection-item'
 						disablePortal
+						value={selectedAirport}
 						id='combo-box-airports'
 						options={airportsListByCountry}
-						sx={{ width: '98%', margin: '10px auto' }}
-						getOptionLabel={option => option.name || ''}
+						getOptionLabel={option =>
+							option.name + ', ' + option.iata_code || ''
+						}
 						renderInput={params => (
 							<TextField {...params} label='Wybierz lotnisko' />
 						)}
@@ -84,59 +78,62 @@ export const SearchForm = () => {
 							}
 						}}
 					/>
-				</div>
-			)}
-
+				)}
+		
+			</div>
 			{selectedAirport && (
-				<FormControl
+				<Box
 					sx={{
 						width: '98%',
-						margin: '10px auto',
+						margin: '0 auto',
 					}}>
-					<RadioGroup
+					<Box
 						sx={{
 							display: 'flex',
 							flexDirection: 'row',
 							justifyContent: 'space-evenly',
+							margin: '0 auto',
 						}}>
-						<Box className='direction-box'>
+						<Box
+							className={`direction-box ${
+								direction === 'departure' ? 'active' : ''
+							}`}>
 							<FlightTakeoffIcon />
-							<FormControlLabel
-								value='departure'
-								control={<Radio />}
-								label='Wyloty'
-								onChange={handleDirectionChange}
-							/>
+							<Button onClick={() => setDirection('departure')}>
+								Departure
+							</Button>
 						</Box>
-						<Box className='direction-box'>
+						<Box
+							className={`direction-box ${
+								direction === 'arrival' ? 'active' : ''
+							}`}>
 							<FlightLandIcon />
-							<FormControlLabel
-								value='arrival'
-								control={<Radio />}
-								label='Przyloty'
-								onChange={handleDirectionChange}
-							/>
+							<Button onClick={() => setDirection('arrival')}>Arrival</Button>
 						</Box>
-					</RadioGroup>
-				</FormControl>
+					</Box>
+				</Box>
 			)}
 			{selectedAirport && direction && (
 				<Box
 					sx={{
-						width: '100%',
+						margin: '0 auto',
+						width: '98%',
 						display: 'flex',
 						flexDirection: 'row',
 						justifyContent: 'center',
 					}}>
-					<Button onClick={() => setOffset(prev => prev + 1)}>
-						<ArrowBackIos />
-					</Button>
-
-					<Button
-						disabled={offset === 0}
-						onClick={() => setOffset(prev => prev - 1)}>
-						<ArrowForwardIos />
-					</Button>
+					<Box className={`arrow-box ${direction !== null ? 'active' : ''}`}>
+						<Button onClick={() => setOffset(prev => prev + 1)}>
+							<ArrowBackIos />
+						</Button>
+					</Box>
+					<Box className={`arrow-box ${direction !== null ? 'active' : ''}`}>
+						<Button
+							disabled={offset === 0}
+							onClick={() => setOffset(prev => prev - 1)}>
+							<ArrowForwardIos />
+						</Button>
+					</Box>
 				</Box>
 			)}
 			{selectedAirport && direction && (
