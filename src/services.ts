@@ -6,7 +6,7 @@ const dataServiceDef = () => {
 
 	const proxyUrl = 'https://corsproxy.io/?';
 	const baseUrl = 'http://api.aviationstack.com/v1/flights?access_key=';
-	const getFlights = async (iata_code: string, direction: Direction, offset: number) => {
+	const getFlights = async (iata_code: string, direction: Direction, offset: number, date: string) => {
 		try {
 			const url = (): string => {
 				if (direction === 'arrival') {

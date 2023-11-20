@@ -4,14 +4,17 @@ import {
 	Table,
 	TableBody,
 	TableCell,
+	TableContainer,
 	TableHead,
 	TableRow,
 	Typography,
+	Paper,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import { Flight } from '../../interfaces/interfaces';
 import './FlightDetails.css';
 
@@ -69,9 +72,15 @@ export const FlightDetails: React.FC<FlightDetailsProps> = ({
 	return (
 		<Box className='modal-container'>
 			<Box ref={modalRef} className='modal-box'>
-				<ChevronLeftIcon
+				<ArrowBackIosIcon
+				fontSize='large'
 					className='chevron-left'
 					onClick={() => navigateToFlight('prev')}
+				/>
+				<ArrowForwardIosIcon
+				fontSize='large'
+					className='chevron-right'
+					onClick={() => navigateToFlight('next')}
 				/>
 				<CloseIcon
 					className='close-icon'
@@ -101,71 +110,76 @@ export const FlightDetails: React.FC<FlightDetailsProps> = ({
 					}}>
 					{flight.aircraft?.icao}
 				</Typography>
-				<Table
-					sx={{
-						margin: {
-							xs: '5px auto',
-							md: '50px auto',
-						},
-					}}>
-					<TableHead>
-						<TableRow>
-							<TableCell>Departure Airport</TableCell>
-							<TableCell>Departure time</TableCell>
-							<TableCell>Departure Terminal</TableCell>
-							<TableCell>Departure Gate</TableCell>
-							<TableCell>Departure Delay</TableCell>
-							<TableCell></TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						<TableRow key={flight.flight_date + flight.flight.number}>
-							<TableCell>
-								{flight.departure.airport}, {flight.departure.iata}
-							</TableCell>
-							<TableCell>{flight.departure.scheduled}</TableCell>
-							<TableCell>{flight.departure.terminal}</TableCell>
-							<TableCell>{flight.departure.gate}</TableCell>
-							<TableCell>{flight.departure.delay}</TableCell>
-							<TableCell sx={{ width: '100px' }}></TableCell>
-						</TableRow>
-					</TableBody>
-				</Table>
+				<TableContainer component={Paper}>
+					<Table
+						className='table'
+						sx={{
+							margin: {
+								xs: '5px auto',
+								md: '50px auto',
+							},
+						}}>
+						<TableHead>
+							<TableRow>
+								<TableCell>Departure Airport</TableCell>
+								<TableCell>Departure time</TableCell>
+								<TableCell>Departure Terminal</TableCell>
+								<TableCell>Departure Gate</TableCell>
+								<TableCell>Departure Delay</TableCell>
+								<TableCell></TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							<TableRow key={flight.flight_date + flight.flight.number}>
+								<TableCell>
+									{flight.departure.airport}, {flight.departure.iata}
+								</TableCell>
+								<TableCell>
+								{flight.departure.scheduled.slice(0, 10) + ' ' + flight.departure.scheduled.slice(11, 16) }
+								</TableCell>
+								<TableCell>{flight.departure.terminal}</TableCell>
+								<TableCell>{flight.departure.gate}</TableCell>
+								<TableCell>{flight.departure.delay}</TableCell>
+								<TableCell sx={{ width: '100px' }}></TableCell>
+							</TableRow>
+						</TableBody>
+					</Table>
 
-				<Table
-					sx={{
-						margin: {
-							xs: '5px auto',
-							md: '50px auto',
-						},
-					}}>
-					<TableHead>
-						<TableRow>
-							<TableCell>Arrival Airport</TableCell>
-							<TableCell>Arrival Time</TableCell>
-							<TableCell>Arrival Terminal</TableCell>
-							<TableCell>Arrival Gate</TableCell>
-							<TableCell>Arrival Delay</TableCell>
-							<TableCell>Baggage</TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						<TableRow key={flight.flight_date + flight.flight.number}>
-							<TableCell>
-								{flight.arrival.airport}, {flight.arrival.iata}
-							</TableCell>
-							<TableCell>{flight.arrival.scheduled}</TableCell>
-							<TableCell>{flight.arrival.terminal}</TableCell>
-							<TableCell>{flight.arrival.gate}</TableCell>
-							<TableCell>{flight.arrival.delay}</TableCell>
-							<TableCell>{flight.arrival.baggage}</TableCell>
-						</TableRow>
-					</TableBody>
-				</Table>
-				<ChevronRightIcon
-					className='chevron-right'
-					onClick={() => navigateToFlight('next')}
-				/>
+					<Table
+						className='table'
+						sx={{
+							margin: {
+								xs: '5px auto',
+								md: '50px auto',
+							},
+						}}>
+						<TableHead>
+							<TableRow>
+								<TableCell>Arrival Airport</TableCell>
+								<TableCell>Arrival Time</TableCell>
+								<TableCell>Arrival Terminal</TableCell>
+								<TableCell>Arrival Gate</TableCell>
+								<TableCell>Arrival Delay</TableCell>
+								<TableCell>Baggage</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							<TableRow key={flight.flight_date + flight.flight.number}>
+								<TableCell>
+									{flight.arrival.airport}, {flight.arrival.iata}
+								</TableCell>
+								<TableCell>
+								{flight.arrival.scheduled.slice(0, 10) + ' ' + flight.arrival.scheduled.slice(11, 16) }
+								</TableCell>
+								<TableCell>{flight.arrival.terminal}</TableCell>
+								<TableCell>{flight.arrival.gate}</TableCell>
+								<TableCell>{flight.arrival.delay}</TableCell>
+								<TableCell>{flight.arrival.baggage}</TableCell>
+							</TableRow>
+						</TableBody>
+					</Table>
+				</TableContainer>
+				
 			</Box>
 		</Box>
 	);

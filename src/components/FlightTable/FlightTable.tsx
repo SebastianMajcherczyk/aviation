@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { dataService } from '../../services';
 import { ArrivalTable } from '../ArrivalTable/ArrivalTable';
 import { DepartureTable } from '../DepartureTable/DepartureTable';
-import { SimpleAirport, Direction} from '../../interfaces/interfaces';
+import { SimpleAirport, Direction, Flight} from '../../interfaces/interfaces';
 
 
 import { useAppDispatch, useAppSelector } from '../../store/store';
@@ -15,14 +15,16 @@ interface FlightTableProps {
 	selectedAirport: SimpleAirport;
 	direction: Direction;
 	offset: number;
+	date: string;
 }
 
 export const FlightTable: React.FC<FlightTableProps> = ({
 	selectedAirport,
 	direction,
 	offset,
+	date
 }) => {
-	// const [flights, setFlights] = useState<Flight[] | null>(null);
+	
 	const [tableActive, setTableActive] = useState(false);
 	const [loaderActive, setLoaderActive] = useState(false);
 	const dispatch = useAppDispatch();
@@ -36,9 +38,26 @@ export const FlightTable: React.FC<FlightTableProps> = ({
 		setLoaderActive(true);
 
 		const fetchFlights = async () => {
-			const data = await dataService.getFlights(iata_code, direction, offset);
-			// setFlights(data.data);
-			dispatch(setFlights(data.data));
+			const data = await dataService.getFlights(iata_code, direction, offset, date);
+			const flights = data.data;
+			const sortedFlights = flights.sort((a: Flight, b: Flight) => {
+				if (direction === 'arrival') {
+					return (
+						new Date(b.arrival.scheduled).getTime() -
+						new Date(a.arrival.scheduled).getTime() 
+					);
+				} else {
+					return (
+						new Date(b.departure.scheduled).getTime() -
+						new Date(a.departure.scheduled).getTime() 
+					);
+				}
+			});
+
+			
+		;
+		
+			dispatch(setFlights(sortedFlights));
 			setTableActive(true);
 			setLoaderActive(false);
 		};

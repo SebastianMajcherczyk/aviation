@@ -26,7 +26,7 @@
   .modal-box {
     width: 80%;
     height: 80%;
-    padding: 30px;
+    padding: 10px;
   }
 }
 
@@ -38,19 +38,27 @@
 }
 
 .chevron-left {
-  font-size: 30px;
-  position: absolute;
-  top: 50%;
-  left: 10px;
+  position: relative;
+  top: 20px;
+  left: 10%;
   transform: translateY(-50%);
   cursor: pointer;
 }
 
 .chevron-right {
-  font-size: 30px;
-  position: absolute;
-  top: 50%;
-  right: 10px;
+  position: relative;
+  top: 20px;
+  right: -80%;
   transform: translateY(-50%);
   cursor: pointer;
+}
+
+.table .MuiTableCell-root {
+  font-size: 12px;
+  min-width: 50px;
+}
+@media (min-width: 576px) {
+  .table .MuiTableCell-root {
+    font-size: 14px;
+  }
 }/*# sourceMappingURL=FlightDetails.css.map */

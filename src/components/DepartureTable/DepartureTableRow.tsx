@@ -32,7 +32,7 @@ export const DepartureTableRow: React.FC<DepartureTableRowProps> = ({
 			<TableCell>{flight.flight.iata}</TableCell>
 			<TableCell>{`${flightCity} ,   (${flight.arrival.iata})`}</TableCell>
 			<TableCell>
-				{new Date(flight.departure.scheduled).toLocaleString('pl-PL')}
+				{flight.departure.scheduled.slice(0, 10) + ' ' + flight.departure.scheduled.slice(11, 16) }
 			</TableCell>
 			<TableCell>{flight.flight_status}</TableCell>
 			<TableCell>{flight.airline.name}</TableCell>

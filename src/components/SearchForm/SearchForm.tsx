@@ -11,7 +11,8 @@ import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
 import FlightLandIcon from '@mui/icons-material/FlightLand';
 import FlightTakeoffIcon from '@mui/icons-material/FlightTakeoff';
 import './SearchForm.css';
-
+import { DatePickerComponent } from '../DatePickerComponent/DatePickerComponent';
+import dayjs from 'dayjs';
 
 export const SearchForm = () => {
 	const [selectedCountryName, setSelectedCountryName] = useState<string | null>(
@@ -22,7 +23,9 @@ export const SearchForm = () => {
 	);
 	const [direction, setDirection] = useState<Direction | null>(null);
 	const [offset, setOffset] = useState<number>(0);
-
+	const currentDate: Date = new Date();
+	const [date, setDate] = useState<Date>(currentDate);
+	const formatedDate = dayjs(date).format('YYYY-MM-DD');
 	const airportsListByCountry = useMemo(() => {
 		if (selectedCountryName) {
 			return airports.filter(
@@ -31,8 +34,6 @@ export const SearchForm = () => {
 		}
 		return [];
 	}, [selectedCountryName]);
-
-
 
 	return (
 		<div>
@@ -50,6 +51,8 @@ export const SearchForm = () => {
 							setSelectedAirport(null);
 						} else {
 							setSelectedCountryName(null);
+							setSelectedAirport(null);
+							setDirection(null);
 						}
 					}}
 				/>
@@ -73,14 +76,16 @@ export const SearchForm = () => {
 									name: value?.name,
 									iata_code: value?.iata_code,
 								});
+								setDirection(null);
 							} else {
 								setSelectedAirport(null);
+								setDirection(null);
 							}
 						}}
 					/>
 				)}
-		
 			</div>
+			{/* <DatePickerComponent date={date} setDate={setDate} /> */}
 			{selectedAirport && (
 				<Box
 					sx={{
@@ -113,7 +118,8 @@ export const SearchForm = () => {
 					</Box>
 				</Box>
 			)}
-			{selectedAirport && direction && (
+
+			{/* {selectedAirport && direction && (
 				<Box
 					sx={{
 						margin: '0 auto',
@@ -135,11 +141,13 @@ export const SearchForm = () => {
 						</Button>
 					</Box>
 				</Box>
-			)}
+			)} */}
+
 			{selectedAirport && direction && (
 				<FlightTable
 					selectedAirport={selectedAirport}
 					direction={direction}
+					date={formatedDate}
 					offset={offset}
 				/>
 			)}
