@@ -1,14 +1,10 @@
 import { CircularProgress } from '@mui/joy';
 import { Box } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { dataService } from '../../services';
+import React from 'react';
+
 import { ArrivalTable } from '../ArrivalTable/ArrivalTable';
 import { DepartureTable } from '../DepartureTable/DepartureTable';
 import { SimpleAirport, Direction, Flight} from '../../interfaces/interfaces';
-
-
-import { useAppDispatch, useAppSelector } from '../../store/store';
-import { setFlights } from '../../store/apiFlightsSlice';
 
 
 interface FlightTableProps {
@@ -16,53 +12,23 @@ interface FlightTableProps {
 	direction: Direction;
 	offset: number;
 	date: string;
+	flights: Flight[];
+	tableActive: boolean;
+	loaderActive: boolean;
 }
 
 export const FlightTable: React.FC<FlightTableProps> = ({
 	selectedAirport,
 	direction,
 	offset,
-	date
+	date,
+	flights,
+	tableActive,
+	loaderActive
 }) => {
 	
-	const [tableActive, setTableActive] = useState(false);
-	const [loaderActive, setLoaderActive] = useState(false);
-	const dispatch = useAppDispatch();
-	const flightsFromStore = useAppSelector(
-		(state: any) => state.apiFlights.flights
-	);
-
-	useEffect(() => {
-		const iata_code = selectedAirport?.iata_code;
-		setTableActive(false);
-		setLoaderActive(true);
-
-		const fetchFlights = async () => {
-			const data = await dataService.getFlights(iata_code, direction, offset, date);
-			const flights = data.data;
-			const sortedFlights = flights.sort((a: Flight, b: Flight) => {
-				if (direction === 'arrival') {
-					return (
-						new Date(b.arrival.scheduled).getTime() -
-						new Date(a.arrival.scheduled).getTime() 
-					);
-				} else {
-					return (
-						new Date(b.departure.scheduled).getTime() -
-						new Date(a.departure.scheduled).getTime() 
-					);
-				}
-			});
-
-			
-		;
-		
-			dispatch(setFlights(sortedFlights));
-			setTableActive(true);
-			setLoaderActive(false);
-		};
-		fetchFlights();
-	}, [selectedAirport, direction, offset, dispatch]);
+	
+	
 
 	return (
 		<Box
@@ -85,10 +51,10 @@ export const FlightTable: React.FC<FlightTableProps> = ({
 				/>
 			)}
 			{direction === 'arrival' && tableActive && (
-				<ArrivalTable flights={flightsFromStore} />
+				<ArrivalTable flights={flights} />
 			)}
 			{direction === 'departure' && tableActive && (
-				<DepartureTable flights={flightsFromStore} />
+				<DepartureTable flights={flights} />
 			)}
 		</Box>
 	);

@@ -25,6 +25,7 @@ export interface Country {
 export interface SimpleAirport {
 	name: string;
 	iata_code: string;
+	city?: string;
 }
 export interface Flight {
 	flight_date: string;
@@ -77,6 +78,7 @@ export interface FlightInfo {
 	number: string | null;
 	iata: string | null;
 	icao: string | null;
+	codeshared: Codeshared | null;
 }
 
 export interface Aircraft {
@@ -84,4 +86,13 @@ export interface Aircraft {
 	iata: string | null;
 	icao: string | null;
 	icao24: string | null;
+}
+
+interface Codeshared {
+	airline_iata: string;
+	airline_icao: string;
+	airline_name: string;
+	flight_iata: string;
+	flight_icao: string;
+	flight_number: string;
 }

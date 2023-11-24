@@ -45,6 +45,7 @@ export const ArrivalTable: React.FC<ArrivalTableProps> = ({ flights }) => {
 			<Table stickyHeader>
 				<TableHead className='table-head'>
 					<TableRow>
+						<TableCell />
 						<TableCell>Flight Number</TableCell>
 						<TableCell>From</TableCell>
 						<TableCell>Arrival Time</TableCell>
