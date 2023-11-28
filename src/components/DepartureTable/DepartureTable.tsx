@@ -21,7 +21,8 @@ export const DepartureTable: React.FC<DepartureTableProps> = ({ flights }) => {
 		null
 	);
 	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-	const handleClickFlight = (index: number) =>  (flight: Flight) => () => {
+
+	const handleClickFlight = (index: number) => (flight: Flight) => () => {
 		setSelectedFlight(flight);
 		setSelectedFlightIndex(index);
 		setIsModalOpen(true);
@@ -44,6 +45,7 @@ export const DepartureTable: React.FC<DepartureTableProps> = ({ flights }) => {
 			<Table stickyHeader>
 				<TableHead className='table-head'>
 					<TableRow>
+						<TableCell />
 						<TableCell>Flight Number</TableCell>
 						<TableCell>To</TableCell>
 						<TableCell>Departure Time</TableCell>
@@ -53,7 +55,11 @@ export const DepartureTable: React.FC<DepartureTableProps> = ({ flights }) => {
 				</TableHead>
 				<TableBody className='table-body'>
 					{flights?.map((flight, index) => (
-				<DepartureTableRow key={flight.departure.scheduled + flight.flight.iata} flight={flight} handleClickFlight={handleClickFlight(index)}/>
+						<DepartureTableRow
+							key={flight.departure.scheduled + flight.flight.iata}
+							flight={flight}
+							handleClickFlight={handleClickFlight(index)}
+						/>
 					))}
 				</TableBody>
 			</Table>

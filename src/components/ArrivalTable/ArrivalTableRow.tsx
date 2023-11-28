@@ -26,22 +26,14 @@ export const ArrivalTableRow: React.FC<ArrivalTableRowProps> = ({
 	flight,
 	handleClickFlight,
 }) => {
-	const [open, setOpen] = useState(false);
-	const flightsFromStore = useAppSelector(
-		(state: any) => state.apiFlights.flights
+	const sharedOpen = useAppSelector(
+		state => state.filter.sharedFlightsTableOpen
 	);
-	//Finds the other flights numbers that are codeshared with the current flight
-	const codeSharedFlights = useMemo<Flight[]>(() => {
-		if (!flightsFromStore) return [];
-		else {
-			return flightsFromStore.filter((item: Flight, index: number) => {
-				return (
-					item.flight.codeshared?.flight_iata.toLowerCase() ===
-					flight.flight.iata?.toLowerCase()
-				);
-			});
-		}
-	}, [flightsFromStore.length, flight.flight.iata]);
+	const [open, setOpen] = useState(sharedOpen);
+
+	useEffect(() => {
+		setOpen(sharedOpen);
+	}, [sharedOpen]);
 
 	//Finds the city of the current flight departure airport to display it in the table
 	const flightCity = useMemo<string>(() => {
@@ -61,7 +53,7 @@ export const ArrivalTableRow: React.FC<ArrivalTableRowProps> = ({
 					cursor: 'pointer',
 				}}>
 				<TableCell>
-					{codeSharedFlights.length > 0 && (
+					{flight.dependentFlights && flight.dependentFlights.length > 0 && (
 						<IconButton onClick={() => setOpen(!open)}>
 							{open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
 						</IconButton>
@@ -87,7 +79,7 @@ export const ArrivalTableRow: React.FC<ArrivalTableRowProps> = ({
 					{flight.airline.name}
 				</TableCell>
 			</TableRow>
-			<TableRow>
+			{flight.dependentFlights && flight.dependentFlights.length > 0 &&  <TableRow>
 				<TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={3}>
 					<Collapse in={open} timeout='auto' unmountOnExit>
 						<Box>
@@ -98,12 +90,11 @@ export const ArrivalTableRow: React.FC<ArrivalTableRowProps> = ({
 								<TableHead>
 									<TableRow>
 										<TableCell>Flight Number</TableCell>
-
 										<TableCell>Airline</TableCell>
 									</TableRow>
 								</TableHead>
 								<TableBody>
-									{codeSharedFlights.map((sharedFlight: Flight) => (
+									{flight.dependentFlights?.map((sharedFlight: Flight) => (
 										<TableRow
 											key={flight.flight.iata}
 											sx={{
@@ -118,7 +109,7 @@ export const ArrivalTableRow: React.FC<ArrivalTableRowProps> = ({
 						</Box>
 					</Collapse>
 				</TableCell>
-			</TableRow>
+			</TableRow>}
 		</>
 	);
 };

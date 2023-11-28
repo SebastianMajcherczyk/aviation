@@ -4,8 +4,8 @@ import React from 'react';
 
 import { ArrivalTable } from '../ArrivalTable/ArrivalTable';
 import { DepartureTable } from '../DepartureTable/DepartureTable';
-import { SimpleAirport, Direction, Flight} from '../../interfaces/interfaces';
-
+import { SimpleAirport, Direction, Flight } from '../../interfaces/interfaces';
+import { useAppSelector } from '../../store/store';
 
 interface FlightTableProps {
 	selectedAirport: SimpleAirport;
@@ -14,7 +14,6 @@ interface FlightTableProps {
 	date: string;
 	flights: Flight[];
 	tableActive: boolean;
-	loaderActive: boolean;
 }
 
 export const FlightTable: React.FC<FlightTableProps> = ({
@@ -23,13 +22,9 @@ export const FlightTable: React.FC<FlightTableProps> = ({
 	offset,
 	date,
 	flights,
-	tableActive,
-	loaderActive
+	tableActive
 }) => {
-	
-	
-	
-
+	const loaderActive = useAppSelector((state) => state.apiFlights.loading);
 	return (
 		<Box
 			sx={{

@@ -20,20 +20,34 @@ import dayjs from 'dayjs';
 
 import { dataService } from '../../services';
 import { useAppDispatch, useAppSelector } from '../../store/store';
-import { setFlights } from '../../store/apiFlightsSlice';
+import { fetchFlights, setFlights } from '../../store/apiFlightsSlice';
+import {
+	setCountry,
+	setAirport,
+	setDirection,
+	setOffset,
+	setDestination,
+	setSharedOpen,
+	setFlightNumber,
+} from '../../store/filterSlice';
 
 export const SearchForm = () => {
 	const dispatch = useAppDispatch();
-	const [selectedCountryName, setSelectedCountryName] = useState<string | null>(
-		null
+	const selectedCountryName = useAppSelector(
+		(state: any) => state.filter.selectedCountryName
 	);
-	const [selectedAirport, setSelectedAirport] = useState<SimpleAirport | null>(
-		null
+	const selectedAirport = useAppSelector(
+		(state: any) => state.filter.selectedAirport
+	);
+	const selectedDestination = useAppSelector(
+		(state: any) => state.filter.destination
+	);
+	const selectedFlightNumber = useAppSelector(
+		(state: any) => state.filter.flightNumber
 	);
 	const [tableActive, setTableActive] = useState(false);
-	const [loaderActive, setLoaderActive] = useState(false);
 
-	const [direction, setDirection] = useState<Direction | null>(null);
+	const direction = useAppSelector((state: any) => state.filter.direction);
 	const [offset, setOffset] = useState<number>(0);
 	const currentDate: Date = new Date();
 	const [date, setDate] = useState<Date>(currentDate);
@@ -48,11 +62,8 @@ export const SearchForm = () => {
 	}, [selectedCountryName]);
 
 	const flightsFromStore = useAppSelector(
-		(state: any) => state.apiFlights.flights
+		(state: any) => state.apiFlights.modifiedFlights
 	);
-
-	const [selectedDestination, setSelectedDestination] =
-		useState<SimpleAirport | null>(null);
 
 	// Create the list of unique destinations at the current airport to display in the autocomplete and filter by it
 	const destinationsList = useMemo<SimpleAirport[]>(() => {
@@ -88,7 +99,29 @@ export const SearchForm = () => {
 			return uniqueFlights;
 		}
 		return [];
-	}, [selectedAirport, direction, flightsFromStore.length]);
+	}, [
+		selectedCountryName,
+		selectedAirport,
+		direction,
+		flightsFromStore.length,
+	]);
+
+	const flightNumbersList = useMemo<string[]>(() => {
+		if (selectedAirport) {
+			const flights: string[] = flightsFromStore.map((flight: Flight) => {
+				if (!flight.dependentFlights) {
+					return flight.flight.iata;
+				} else {
+					const dependentFlights = flight.dependentFlights.map(
+						(dependentFlight: Flight) => dependentFlight.flight.iata
+					);
+					return [flight.flight.iata, ...dependentFlights];
+				}
+			});
+			return flights.flat(2);
+		}
+		return [];
+	}, [selectedAirport, flightsFromStore.length]);
 
 	//Create the list of the flights filtered by the selected destination
 	const flightsByDestination = useMemo<Flight[]>(() => {
@@ -101,46 +134,42 @@ export const SearchForm = () => {
 		}
 		return flightsFromStore;
 	}, [selectedDestination, direction, flightsFromStore]);
+
+	//Create the list of the flights filtered by the selected flight number
+	const flightsByNumber = useMemo<Flight[]>(() => {
+		if (selectedFlightNumber) {
+			return flightsByDestination.filter(
+				(flight: Flight) =>
+					flight.flight.iata === selectedFlightNumber ||
+					flight.dependentFlights?.some(
+						(dependentFlight: Flight) =>
+							dependentFlight.flight.codeshared?.flight_iata ===
+							selectedFlightNumber
+					)
+			);
+		}
+		return flightsByDestination;
+	}, [selectedFlightNumber, flightsFromStore, flightsByDestination]);
+
 	useEffect(() => {
 		const iata_code = selectedAirport?.iata_code;
-		setLoaderActive(true);
-		setTableActive(false);
-		const fetchFlights = async () => {
-			if (iata_code && direction && date) {
-				const response = await dataService.getFlights(
-					iata_code,
-					direction,
-					offset,
-					formatedDate
-				);
-				const flights = response.data;
-				const sortedFlights = flights?.sort((a: Flight, b: Flight) => {
-					if (direction === 'arrival') {
-						return (
-							new Date(b.arrival.scheduled).getTime() -
-							new Date(a.arrival.scheduled).getTime()
-						);
-					} else {
-						return (
-							new Date(b.departure.scheduled).getTime() -
-							new Date(a.departure.scheduled).getTime()
-						);
-					}
-				});
 
-				dispatch(setFlights(sortedFlights));
-				setLoaderActive(false);
-				setTableActive(true);
-			}
-		};
-		fetchFlights();
+		setTableActive(false);
+		if (iata_code && direction && date) {
+			dispatch(setFlights([]));
+			dispatch(
+				fetchFlights({ iata_code, direction, date: formatedDate, offset })
+			);
+
+			setTableActive(true);
+		}
 	}, [selectedAirport, direction, offset, dispatch, date, formatedDate]);
 
 	const resetStates = () => {
-		setSelectedCountryName(null);
-		setSelectedAirport(null);
-		setDirection(null);
-		setSelectedDestination(null);
+		dispatch(setCountry(null));
+		dispatch(setAirport(null));
+		dispatch(setDirection(null));
+		dispatch(setDestination(null));
 		dispatch(setFlights([]));
 	};
 
@@ -157,7 +186,7 @@ export const SearchForm = () => {
 					onChange={(event, value) => {
 						resetStates();
 						if (value) {
-							setSelectedCountryName(value?.name);
+							dispatch(setCountry(value?.name));
 						}
 					}}
 				/>
@@ -169,6 +198,9 @@ export const SearchForm = () => {
 						value={selectedAirport}
 						id='combo-box-airports'
 						options={airportsListByCountry}
+						isOptionEqualToValue={(option, value) =>
+							option.iata_code === value.iata_code
+						}
 						getOptionLabel={option =>
 							option.name + ', ' + option.iata_code || ''
 						}
@@ -176,22 +208,82 @@ export const SearchForm = () => {
 							<TextField {...params} label='Wybierz lotnisko' />
 						)}
 						onChange={(event, value) => {
+							dispatch(setDirection(null));
+							dispatch(setDestination(null));
+							dispatch(setFlights([]));
+
 							if (value) {
-								setSelectedAirport({
-									name: value?.name,
-									iata_code: value?.iata_code,
-								});
-								setDirection(null);
+								dispatch(
+									setAirport({
+										name: value?.name,
+										iata_code: value?.iata_code,
+									})
+								);
+								dispatch(setDirection(null));
 							} else {
-								setSelectedAirport(null);
-								setDirection(null);
-								setSelectedDestination(null);
+								dispatch(setAirport(null));
+								dispatch(setDirection(null));
+								dispatch(setDestination(null));
 							}
 						}}
 					/>
 				)}
 			</div>
 			{/* <DatePickerComponent date={date} setDate={setDate} /> */}
+			{selectedAirport && direction && flightsFromStore.length > 0 && (
+				<Box
+				className='selection-container'
+					>
+					<Autocomplete
+						className='selection-item'
+						disablePortal
+						id='combo-box-destination'
+						options={destinationsList}
+						getOptionLabel={option =>
+							option.city + ', ' + option.name + ', ' + option.iata_code || ''
+						}
+						renderInput={params => (
+							<TextField {...params} label='Filtruj wg destynacji' />
+						)}
+						value={selectedDestination}
+						onChange={(event, value) => {
+							if (value) {
+								dispatch(
+									setDestination({
+										name: value.name,
+										iata_code: value.iata_code,
+										city: value?.city,
+									})
+								);
+								dispatch(setSharedOpen(true));
+							} else {
+								dispatch(setDestination(null));
+								dispatch(setSharedOpen(false));
+							}
+						}}
+					/>
+					<Autocomplete
+						className='selection-item'
+						disablePortal
+						id='combo-box-flight'
+						options={flightNumbersList}
+						getOptionLabel={option => option || ''}
+						renderInput={params => (
+							<TextField {...params} label='Filtruj wg numeru lotu' />
+						)}
+						value={selectedFlightNumber}
+						onChange={(event, value) => {
+							if (value) {
+								dispatch(setFlightNumber(value));
+								dispatch(setSharedOpen(true));
+							} else {
+								dispatch(setFlightNumber(null));
+								dispatch(setSharedOpen(false));
+							}
+						}}
+					/>
+				</Box>
+			)}
 			{selectedAirport && (
 				<Box
 					sx={{
@@ -210,7 +302,12 @@ export const SearchForm = () => {
 								direction === 'departure' ? 'active' : ''
 							}`}>
 							<FlightTakeoffIcon />
-							<Button onClick={() => setDirection('departure')}>
+							<Button
+								onClick={() => {
+									dispatch(setDirection('departure'));
+									dispatch(setDestination(null));
+									dispatch(setSharedOpen(false));
+								}}>
 								Departure
 							</Button>
 						</Box>
@@ -219,43 +316,16 @@ export const SearchForm = () => {
 								direction === 'arrival' ? 'active' : ''
 							}`}>
 							<FlightLandIcon />
-							<Button onClick={() => setDirection('arrival')}>Arrival</Button>
+							<Button
+								onClick={() => {
+									dispatch(setDirection('arrival'));
+									dispatch(setDestination(null));
+									dispatch(setSharedOpen(false));
+								}}>
+								Arrival
+							</Button>
 						</Box>
 					</Box>
-				</Box>
-			)}
-			{selectedAirport && direction && flightsFromStore.length > 0 && (
-				<Box
-					sx={{
-						margin: '0 auto',
-						width: '98%',
-						display: 'flex',
-						flexDirection: 'row',
-						justifyContent: 'center',
-					}}>
-					<Autocomplete
-						className='selection-item'
-						disablePortal
-						id='combo-box-destination'
-						options={destinationsList}
-						getOptionLabel={option =>
-							option.city + ', ' + option.name + ', '+ option.iata_code || ''
-						}
-						renderInput={params => (
-							<TextField {...params} label='Filtruj wg destynacji' />
-						)}
-						value={selectedDestination}
-						onChange={(event, value) => {
-							if (value) {
-								setSelectedDestination({
-									name: value.name,
-									iata_code: value.iata_code,
-								});
-							} else {
-								setSelectedDestination(null);
-							}
-						}}
-					/>
 				</Box>
 			)}
 
@@ -289,9 +359,8 @@ export const SearchForm = () => {
 					direction={direction}
 					date={formatedDate}
 					offset={offset}
-					flights={flightsByDestination}
+					flights={flightsByNumber}
 					tableActive={tableActive}
-					loaderActive={loaderActive}
 				/>
 			)}
 		</div>
