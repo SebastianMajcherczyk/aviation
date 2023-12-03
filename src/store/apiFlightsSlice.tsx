@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk, Slice } from '@reduxjs/toolkit';
 import { Flight, Direction } from '../interfaces/interfaces';
 import { dataService } from '../services';
 
@@ -17,27 +17,28 @@ export interface FetchFlightsParams {
 }
 
 export const fetchFlights = createAsyncThunk(
-	'apiFlights/fetchFlights', 
-	async ({iata_code, direction, offset, date}: FetchFlightsParams) => {
-	const flights =  (await dataService.getFlights(iata_code, direction, offset, date)).data;
-	const sortedFlights = flights?.sort((a: Flight, b: Flight) => {
-		if (direction === 'arrival') {
-			return (
-				new Date(b.arrival.scheduled).getTime() -
-				new Date(a.arrival.scheduled).getTime()
-			);
-		} else {
-			return (
-				new Date(b.departure.scheduled).getTime() -
-				new Date(a.departure.scheduled).getTime()
-			);
-		}
-	});
+	'apiFlights/fetchFlights',
+	async ({ iata_code, direction, offset, date }: FetchFlightsParams) => {
+		const flights = (
+			await dataService.getFlights(iata_code, direction, offset, date)
+		).data;
+		const sortedFlights = flights?.sort((a: Flight, b: Flight) => {
+			if (direction === 'arrival') {
+				return (
+					new Date(b.arrival.scheduled).getTime() -
+					new Date(a.arrival.scheduled).getTime()
+				);
+			} else {
+				return (
+					new Date(b.departure.scheduled).getTime() -
+					new Date(a.departure.scheduled).getTime()
+				);
+			}
+		});
 
-	return sortedFlights;
-
-
-});
+		return sortedFlights;
+	}
+);
 
 const initialState: ApiFlightsState = {
 	flights: [],
@@ -46,7 +47,7 @@ const initialState: ApiFlightsState = {
 	modifiedFlights: [],
 };
 
-export const apiFlightsSlice = createSlice({
+export const apiFlightsSlice: Slice = createSlice({
 	name: 'apiFlights',
 	initialState,
 	reducers: {
@@ -70,7 +71,7 @@ export const apiFlightsSlice = createSlice({
 			state.loading = false;
 			state.error = action.error.message || null;
 		});
-	}
+	},
 });
 
 export const { setFlights } = apiFlightsSlice.actions;
@@ -92,14 +93,12 @@ const getModifiedFlights = (flights: Flight[]): any[] => {
 			}
 		} else {
 			const flight_number = flight.flight.codeshared.flight_number;
-			console.log('Lot zależny:', flight.flight.number);
-			console.log('Lot główny: ', flight.flight.codeshared.flight_number);
+
 			const elIndex = collector.findIndex(
 				fl => fl.flight.number === flight_number
 			);
 
 			if (elIndex > -1) {
-				console.log('Index of main flight in modifiedFlights)', index);
 				collector[elIndex].dependentFlights.push(flight);
 			} else {
 				const foundElement = array.find(
@@ -107,7 +106,6 @@ const getModifiedFlights = (flights: Flight[]): any[] => {
 				);
 
 				if (foundElement) {
-					console.log('Found element:', foundElement);
 					const copy: any = { ...foundElement };
 
 					copy.dependentFlights = [flight];

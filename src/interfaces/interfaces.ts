@@ -35,7 +35,7 @@ export interface Flight {
 	airline: Airline;
 	flight: FlightInfo;
 	aircraft: Aircraft | null;
-	dependentFlights?: []
+	dependentFlights: Flight[] 
 }
 
 export interface Departure {
@@ -77,7 +77,7 @@ export interface Airline {
 
 export interface FlightInfo {
 	number: string | null;
-	iata: string | null;
+	iata: string ;
 	icao: string | null;
 	codeshared: Codeshared | null;
 }

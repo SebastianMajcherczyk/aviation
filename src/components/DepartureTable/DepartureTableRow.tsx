@@ -51,7 +51,7 @@ export const DepartureTableRow: React.FC<DepartureTableRowProps> = ({
 					cursor: 'pointer',
 				}}>
 				<TableCell>
-					{flight.dependentFlights && flight.dependentFlights.length > 0 && (
+					{flight.dependentFlights.length > 0 && (
 						<IconButton onClick={() => setOpen(!open)}>
 							{open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
 						</IconButton>
@@ -77,7 +77,7 @@ export const DepartureTableRow: React.FC<DepartureTableRowProps> = ({
 				</TableCell>
 			</TableRow>
 
-			{flight.dependentFlights && flight.dependentFlights.length > 0 && (
+			{flight.dependentFlights.length > 0 && (
 				<TableRow>
 					<TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={3}>
 						<Collapse in={open} timeout='auto' unmountOnExit>

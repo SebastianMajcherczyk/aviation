@@ -1,22 +1,22 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SimpleAirport, Direction } from '../interfaces/interfaces';
+import { SimpleAirport, Direction, Country } from '../interfaces/interfaces';
 
 export interface FilterSliceState {
-	selectedCountryName: string | null;
+	selectedCountry: Country | null;
 	selectedAirport: SimpleAirport | null;
 	direction: Direction | null;
 	offset: number;
-	destination: SimpleAirport | null;
+	destination: SimpleAirport[];
 	sharedFlightsTableOpen: boolean;
 	flightNumber: string | null;
 }
 
 const initialState: FilterSliceState = {
-	selectedCountryName: null,
+	selectedCountry: null,
 	selectedAirport: null,
 	direction: null,
 	offset: 0,
-	destination: null,
+	destination: [],
 	sharedFlightsTableOpen: false,
 	flightNumber: null,
 };
@@ -25,8 +25,8 @@ export const filterSlice = createSlice({
 	name: 'filters',
 	initialState,
 	reducers: {
-		setCountry: (state, action: PayloadAction<string | null>) => {
-			state.selectedCountryName = action.payload;
+		setCountry: (state, action: PayloadAction<Country | null>) => {
+			state.selectedCountry = action.payload;
 		},
 		setAirport: (state, action: PayloadAction<SimpleAirport | null>) => {
 			state.selectedAirport = action.payload;
@@ -37,7 +37,7 @@ export const filterSlice = createSlice({
 		setOffset: (state, action: PayloadAction<number>) => {
 			state.offset = action.payload;
 		},
-		setDestination: (state, action: PayloadAction<SimpleAirport | null>) => {
+		setDestination: (state, action: PayloadAction<SimpleAirport[] >) => {
 			state.destination = action.payload;
 		},
 		setSharedOpen: (state, action: PayloadAction<boolean>) => {

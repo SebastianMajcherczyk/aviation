@@ -53,7 +53,7 @@ export const ArrivalTableRow: React.FC<ArrivalTableRowProps> = ({
 					cursor: 'pointer',
 				}}>
 				<TableCell>
-					{flight.dependentFlights && flight.dependentFlights.length > 0 && (
+					{flight.dependentFlights.length > 0 && (
 						<IconButton onClick={() => setOpen(!open)}>
 							{open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
 						</IconButton>
@@ -79,7 +79,7 @@ export const ArrivalTableRow: React.FC<ArrivalTableRowProps> = ({
 					{flight.airline.name}
 				</TableCell>
 			</TableRow>
-			{flight.dependentFlights && flight.dependentFlights.length > 0 &&  <TableRow>
+			{flight.dependentFlights.length > 0 &&  <TableRow>
 				<TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={3}>
 					<Collapse in={open} timeout='auto' unmountOnExit>
 						<Box>
